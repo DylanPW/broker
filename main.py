@@ -1,6 +1,6 @@
 # Created by DylanPW; https://github.com/DylanPW
 #
-#
+# Currently incomplete
 #
 
 
@@ -79,6 +79,7 @@ listTableScrollbar.pack(side = RIGHT, fill = Y)
 listTable = Listbox(listFrame, bd = 0, yscrollcommand=listTableScrollbar.set)
 listTable.pack(side = "left", fill = BOTH, expand = True)
 listTable.bind("<Double-Button-1>", SelectEntry)
+listTableScrollbar.configure(command = listTable.yview)
 
 # Pack the frame
 listFrame.pack(side = "left", fill = BOTH, expand = True)
@@ -139,6 +140,7 @@ instagramViewEntry.grid(row = 8, column = 2, sticky = 'e')
 linkedinViewEntry.grid(row = 9, column = 2, sticky = 'e')
 otherViewEntry.grid(row = 10, column = 2, sticky = 'e')
 
+# bind left clicking on the entryboxes to
 aliasViewEntry.bind("<Button-1>", copy_text)
 nameViewEntry.bind("<Button-1>", copy_text)
 emailViewEntry.bind("<Button-1>", copy_text)
@@ -155,5 +157,7 @@ otherViewEntry.bind("<Button-1>", copy_text)
 for i in range (100):
     listTable.insert(END, "fish")
 listTable.select_set(0)
+
+
 # start the window
 window.mainloop()

@@ -13,12 +13,13 @@ from sqlite3 import *
 dbname = "Database Name Here"
 padding = 5
 
-
+###############################################################################
 #Functions for user actions
+###############################################################################
 
 #Clicking on the element within the list
 def SelectEntry(event):
-    items = map(int, listTable.curselection())
+    items = listTable.get(ACTIVE)
     aliasVar.set(str(items))
     nameVar.set(str(items))
     emailVar.set(str(items))
@@ -30,6 +31,12 @@ def SelectEntry(event):
     linkedinVar.set(str(items))
     otherVar.set(str(items))
     window.update()
+
+ # triggered off left button click on text_field
+def copy_text(event):
+    field_value = event.widget.get()  # get field value from event, but remove line return at end
+    window.clipboard_clear()  # clear clipboard contents
+    window.clipboard_append(field_value)  # append new value to clipbaord
 
 ###############################################################################
 #tkinter GUI elements
@@ -73,7 +80,7 @@ listTable = Listbox(listFrame, bd = 0, yscrollcommand=listTableScrollbar.set)
 listTable.pack(side = "left", fill = BOTH, expand = True)
 listTable.bind("<Double-Button-1>", SelectEntry)
 
-# Pack the fram
+# Pack the frame
 listFrame.pack(side = "left", fill = BOTH, expand = True)
 
 # Add the tabs to the main window
@@ -132,11 +139,21 @@ instagramViewEntry.grid(row = 8, column = 2, sticky = 'e')
 linkedinViewEntry.grid(row = 9, column = 2, sticky = 'e')
 otherViewEntry.grid(row = 10, column = 2, sticky = 'e')
 
+aliasViewEntry.bind("<Button-1>", copy_text)
+nameViewEntry.bind("<Button-1>", copy_text)
+emailViewEntry.bind("<Button-1>", copy_text)
+phoneViewEntry.bind("<Button-1>", copy_text)
+webViewEntry.bind("<Button-1>", copy_text)
+facebookViewEntry.bind("<Button-1>", copy_text)
+twitterViewEntry.bind("<Button-1>", copy_text)
+instagramViewEntry.bind("<Button-1>", copy_text)
+linkedinViewEntry.bind("<Button-1>", copy_text)
+otherViewEntry.bind("<Button-1>", copy_text)
 ################################################################################
 # DEBUGGING
 ###############################################################################
 for i in range (100):
-    listTable.insert(END, i)
+    listTable.insert(END, "fish")
 listTable.select_set(0)
 # start the window
 window.mainloop()

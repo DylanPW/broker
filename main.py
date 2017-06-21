@@ -1,6 +1,6 @@
 # Created by DylanPW; https://github.com/DylanPW
 #
-# Currently incomplete
+# Currently a work in progress.
 #
 
 
@@ -60,6 +60,15 @@ instagramVar = StringVar()
 linkedinVar = StringVar()
 otherVar = StringVar()
 
+# Add the menubar
+menuBar = Menu(window)
+fileMenu = Menu(menuBar, tearoff = 0, relief = 'flat')
+fileMenu.add_command(label = "Export CSV (NOT WORKING)")
+fileMenu.add_separator()
+fileMenu.add_command(label = "Exit", command = window.quit)
+menuBar.add_cascade(label = "File", menu = fileMenu)
+window.config(menu = menuBar)
+
 # Insert the title label
 titleLabel = Label(window, text= dbname, font = ('Ariel', 24), padx = 10, pady = 10)
 titleLabel.pack(side = "top", fill = X, expand = False)
@@ -91,6 +100,10 @@ addEntries = ttk.Frame(tabs)
 tabs.pack(side = "right", fill = BOTH, expand = True)
 tabs.add(viewEntries, text='View Entry')
 tabs.add(addEntries, text='Add Entries')
+
+################################################################################
+# SETTING UP VIEWENTRIES
+################################################################################
 
 # Add the labels to the viewentries tabs
 aliasViewLabel = Label(viewEntries, text = "Name/Alias: ", padx = padding, pady = padding)
@@ -141,21 +154,75 @@ linkedinViewEntry.grid(row = 9, column = 2, sticky = 'e')
 otherViewEntry.grid(row = 10, column = 2, sticky = 'e')
 
 # bind left clicking on the entryboxes to
-aliasViewEntry.bind("<Button-1>", copy_text)
-nameViewEntry.bind("<Button-1>", copy_text)
-emailViewEntry.bind("<Button-1>", copy_text)
-phoneViewEntry.bind("<Button-1>", copy_text)
-webViewEntry.bind("<Button-1>", copy_text)
-facebookViewEntry.bind("<Button-1>", copy_text)
-twitterViewEntry.bind("<Button-1>", copy_text)
-instagramViewEntry.bind("<Button-1>", copy_text)
-linkedinViewEntry.bind("<Button-1>", copy_text)
-otherViewEntry.bind("<Button-1>", copy_text)
+aliasViewEntry.bind("<Button-3>", copy_text)
+nameViewEntry.bind("<Button-3>", copy_text)
+emailViewEntry.bind("<Button-3>", copy_text)
+phoneViewEntry.bind("<Button-3>", copy_text)
+webViewEntry.bind("<Button-3>", copy_text)
+facebookViewEntry.bind("<Button-3>", copy_text)
+twitterViewEntry.bind("<Button-3>", copy_text)
+instagramViewEntry.bind("<Button-3>", copy_text)
+linkedinViewEntry.bind("<Button-3>", copy_text)
+otherViewEntry.bind("<Button-3>", copy_text)
+
+################################################################################
+# SETTING UP ADDENTRIES
+################################################################################
+
+# Add the labels to the addentries tabs
+aliasEditLabel = Label(addEntries, text = "Name/Alias: ", padx = padding, pady = padding)
+nameEditLabel = Label(addEntries, text = "Full Name: ", padx = padding, pady = padding)
+emailEditLabel = Label(addEntries, text = "Email: ", padx = padding, pady = padding)
+phoneEditLabel = Label(addEntries, text = "Phone Number: ", padx = padding, pady = padding)
+webEditLabel = Label(addEntries, text = "Website: ", padx = padding, pady = padding)
+facebookEditLabel = Label(addEntries, text = "Facebook: ", padx = padding, pady = padding)
+twitterEditLabel = Label(addEntries, text = "Twitter: ", padx = padding, pady = padding)
+instagramEditLabel = Label(addEntries, text = "Instragram: ", padx = padding, pady = padding)
+linkedinEditLabel = Label(addEntries, text = "Linkedin: ", padx = padding, pady = padding)
+otherEditLabel = Label(addEntries, text = "Other Information: ", padx = padding, pady = padding)
+
+# Add the text entry fields
+aliasEditEntry = Entry(addEntries, state = "normal", width = 52)
+nameEditEntry = Entry(addEntries, state = "normal", width = 52)
+emailEditEntry = Entry(addEntries, state = "normal", width = 52)
+phoneEditEntry = Entry(addEntries, state = "normal", width = 52)
+webEditEntry = Entry(addEntries, state = "normal", width = 52)
+facebookEditEntry = Entry(addEntries, state = "normal", width = 52)
+twitterEditEntry = Entry(addEntries, state = "normal", width = 52)
+instagramEditEntry = Entry(addEntries, state = "normal", width = 52)
+linkedinEditEntry = Entry(addEntries, state = "normal", width = 52)
+otherEditEntry = Entry(addEntries, state = "normal", width = 52)
+
+# Add the labels into a grid
+aliasEditLabel.grid(row = 1, column = 1, sticky = 'w')
+nameEditLabel.grid(row = 2, column = 1, sticky = 'w')
+emailEditLabel.grid(row = 3, column = 1, sticky = 'w')
+phoneEditLabel.grid(row = 4, column = 1, sticky = 'w')
+webEditLabel.grid(row = 5, column = 1, sticky = 'w')
+facebookEditLabel.grid(row = 6, column = 1, sticky = 'w')
+twitterEditLabel.grid(row = 7, column = 1, sticky = 'w')
+instagramEditLabel.grid(row = 8, column = 1, sticky = 'w')
+linkedinEditLabel.grid(row = 9, column = 1, sticky = 'w')
+otherEditLabel.grid(row = 10, column = 1, sticky = 'w')
+
+# add the entryboxes into a grid
+aliasEditEntry.grid(row = 1, column = 2, sticky = 'e')
+nameEditEntry.grid(row = 2, column = 2, sticky = 'e')
+emailEditEntry.grid(row = 3, column = 2, sticky = 'e')
+phoneEditEntry.grid(row = 4, column = 2, sticky = 'e')
+webEditEntry.grid(row = 5, column = 2, sticky = 'e')
+facebookEditEntry.grid(row = 6, column = 2, sticky = 'e')
+twitterEditEntry.grid(row = 7, column = 2, sticky = 'e')
+instagramEditEntry.grid(row = 8, column = 2, sticky = 'e')
+linkedinEditEntry.grid(row = 9, column = 2, sticky = 'e')
+otherEditEntry.grid(row = 10, column = 2, sticky = 'e')
+
+
 ################################################################################
 # DEBUGGING
 ###############################################################################
 for i in range (100):
-    listTable.insert(END, "fish")
+    listTable.insert(END, "fish" + str(i))
 listTable.select_set(0)
 
 

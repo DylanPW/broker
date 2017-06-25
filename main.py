@@ -1,5 +1,7 @@
 # Created by DylanPW; https://github.com/DylanPW
 #
+# A simple contacts database application, featuring exporting to csv.
+#
 # Currently a work in progress.
 #
 
@@ -7,8 +9,12 @@
 #Import applicable modules
 from Tkinter import *
 import ttk
+import Tkconstants, tkFileDialog, tkMessageBox
 from sqlite3 import *
-
+import platform
+import os.path
+import sys
+from ast import literal_eval
 #Variables for text
 dbname = "Database Name Here"
 padding = 5
@@ -17,26 +23,172 @@ padding = 5
 #Functions for user actions
 ###############################################################################
 
+# Key Variables
+editing = False
+unsavedChanges = False
+
 #Clicking on the element within the list
+
+# *** CURRENTLY DEBUGGING ***
+# Initalise the database connection
+def initialiseDB():
+    global db, db_connect
+    if os.path.exists("contacts.db"):
+        db = connect(database = "contacts.db")
+        db_connect = db.cursor()
+    else:
+        createNew = tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
+        if createNew == True:
+            db = connect(database = "contacts.db")
+            db.row_factory = lambda cursor, row: row[0]
+            db_connect = db.cursor()
+            db_connect.execute("CREATE TABLE Contacts (id integer PRIMARY KEY, alias text NOT NULL, name text, email text, phone text, website text, facebook text, twitter text, instagram text, linkedin text, other text)")
+        elif createNew == False:
+            exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
+            if exitError == "ok":
+                ErrorMsg()
+    db_connect.execute('SELECT * FROM Contacts')
+    # dbLength = len(db_connect.fetchall())
+    db_connect.execute("SELECT alias FROM Contacts")
+    results = db_connect.fetchall()
+    for r in results:
+        listTable.insert(END, r)
+    global index
+    index = 0
+
+# Select the information from the database
 def SelectEntry(event):
-    items = listTable.get(ACTIVE)
-    aliasVar.set(str(items))
-    nameVar.set(str(items))
-    emailVar.set(str(items))
-    phoneVar.set(str(items))
-    websiteVar.set(str(items))
-    facebookVar.set(str(items))
-    twitterVar.set(str(items))
-    instagramVar.set(str(items))
-    linkedinVar.set(str(items))
-    otherVar.set(str(items))
+    global index
+    index = [str(r) for r in listTable.curselection()]
+    index = [str(r) for r in index]
+    index = str(int(index[0]) + 1)
+
+    # get the appropriate information for each field, and collapse the tuple
+    db_connect.execute("SELECT alias FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    aliasVar.set(results[0])
+
+    db_connect.execute("SELECT name FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    nameVar.set(results[0])
+
+    db_connect.execute("SELECT email FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    emailVar.set(results[0])
+
+    db_connect.execute("SELECT phone FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    phoneVar.set(results[0])
+
+    db_connect.execute("SELECT website FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    websiteVar.set(results[0])
+
+    db_connect.execute("SELECT facebook FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    facebookVar.set(results[0])
+
+    db_connect.execute("SELECT twitter FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    twitterVar.set(results[0])
+
+    db_connect.execute("SELECT instagram FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    instagramVar.set(results[0])
+
+    db_connect.execute("SELECT linkedin FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    linkedinVar.set(results[0])
+
+    db_connect.execute("SELECT other FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i[0] for i in db_connect.fetchall()]
+    otherVar.set(results[0])
+
     window.update()
 
- # triggered off left button click on text_field
+# triggered off left button click on text_field
 def copy_text(event):
-    field_value = event.widget.get()  # get field value from event, but remove line return at end
+    field_value = event.widget.get()  # get field value from event
     window.clipboard_clear()  # clear clipboard contents
     window.clipboard_append(field_value)  # append new value to clipbaord
+
+# def paste_text(event):
+
+
+# change the values of the View Entry Boxes to accept modifications
+
+def editValues():
+    global index, editing
+    global aliasVar, nameVar, emailVar, phoneVar, websiteVar, facebookVar, twitterVar, instagramVar, linkedinVar, otherVar
+    global aliasBackup, nameBackup, emailBackup, phoneBackup, websiteBackup, facebookBackup, twitterBackup, instagramBackup, linkedinBackup, otherBackup
+
+    if index != 0:
+        # Change the state to readonly and save the entries to the database
+        if editing == True:
+            aliasViewEntry.configure(state = "readonly")
+            nameViewEntry.configure(state = "readonly")
+            emailViewEntry.configure(state = "readonly")
+            phoneViewEntry.configure(state = "readonly")
+            webViewEntry.configure(state = "readonly")
+            facebookViewEntry.configure(state = "readonly")
+            twitterViewEntry.configure(state = "readonly")
+            instagramViewEntry.configure(state = "readonly")
+            linkedinViewEntry.configure(state = "readonly")
+            otherViewEntry.configure(state = "readonly")
+            editButton.configure(text = "Edit Entry")
+            editing = False
+            promptResult = tkMessageBox.askokcancel("Save Entry?","Would you like to save this entry?")
+            if promptResult == True:
+                print'debug'
+            elif promptResult == False:
+                aliasVar.set(aliasBackup)
+                nameVar.set(nameBackup)
+                emailVar.set(emailBackup)
+                phoneVar.set(phoneBackup)
+                websiteVar.set(websiteBackup)
+                facebookVar.set(facebookBackup)
+                twitterVar.set(twitterBackup)
+                instagramVar.set(instagramBackup)
+                linkedinVar.set(linkedinBackup)
+                otherVar.set(otherBackup)
+
+                window.update()
+        else:
+            # Save the previous contents of the entries
+            aliasBackup = aliasViewEntry.get()
+            nameBackup = nameViewEntry.get()
+            emailBackup = emailViewEntry.get()
+            phoneBackup = phoneViewEntry.get()
+            websiteBackup = webViewEntry.get()
+            facebookBackup = facebookViewEntry.get()
+            twitterBackup = twitterViewEntry.get()
+            instagramBackup = instagramViewEntry.get()
+            linkedinBackup = linkedinViewEntry.get()
+            otherBackup = otherViewEntry.get()
+
+            aliasViewEntry.configure(state = "normal")
+            nameViewEntry.configure(state = "normal")
+            emailViewEntry.configure(state = "normal")
+            phoneViewEntry.configure(state = "normal")
+            webViewEntry.configure(state = "normal")
+            facebookViewEntry.configure(state = "normal")
+            twitterViewEntry.configure(state = "normal")
+            instagramViewEntry.configure(state = "normal")
+            linkedinViewEntry.configure(state = "normal")
+            otherViewEntry.configure(state = "normal")
+            editButton.configure(text = "Save Entry")
+            editing = True
+    else:
+        tkMessageBox.showerror("Error","Please select an Entry")
+
+# Exit the application, closing any database connections in the process.
+def exitApp():
+    db_connect.close()
+    db.close()
+    sys.exit(0)
+
+def ErrorMsg():
+    sys.exit(0)
 
 ###############################################################################
 #tkinter GUI elements
@@ -60,12 +212,13 @@ instagramVar = StringVar()
 linkedinVar = StringVar()
 otherVar = StringVar()
 
+
 # Add the menubar
 menuBar = Menu(window)
 fileMenu = Menu(menuBar, tearoff = 0, relief = 'flat')
 fileMenu.add_command(label = "Export CSV (NOT WORKING)")
 fileMenu.add_separator()
-fileMenu.add_command(label = "Exit", command = window.quit)
+fileMenu.add_command(label = "Exit", command = exitApp)
 menuBar.add_cascade(label = "File", menu = fileMenu)
 window.config(menu = menuBar)
 
@@ -106,28 +259,28 @@ tabs.add(addEntries, text='Add Entries')
 ################################################################################
 
 # Add the labels to the viewentries tabs
-aliasViewLabel = Label(viewEntries, text = "Name/Alias: ", padx = padding, pady = padding)
-nameViewLabel = Label(viewEntries, text = "Full Name: ", padx = padding, pady = padding)
-emailViewLabel = Label(viewEntries, text = "Email: ", padx = padding, pady = padding)
-phoneViewLabel = Label(viewEntries, text = "Phone Number: ", padx = padding, pady = padding)
-webViewLabel = Label(viewEntries, text = "Website: ", padx = padding, pady = padding)
-facebookViewLabel = Label(viewEntries, text = "Facebook: ", padx = padding, pady = padding)
-twitterViewLabel = Label(viewEntries, text = "Twitter: ", padx = padding, pady = padding)
-instagramViewLabel = Label(viewEntries, text = "Instragram: ", padx = padding, pady = padding)
-linkedinViewLabel = Label(viewEntries, text = "Linkedin: ", padx = padding, pady = padding)
-otherViewLabel = Label(viewEntries, text = "Other Information: ", padx = padding, pady = padding)
+aliasViewLabel = Label(viewEntries, text = "Name/Alias: ", padx = padding, pady = padding, font = ("Ariel", 10))
+nameViewLabel = Label(viewEntries, text = "Full Name: ", padx = padding, pady = padding, font = ("Ariel", 10))
+emailViewLabel = Label(viewEntries, text = "Email: ", padx = padding, pady = padding, font = ("Ariel", 10))
+phoneViewLabel = Label(viewEntries, text = "Phone Number: ", padx = padding, pady = padding, font = ("Ariel", 10))
+webViewLabel = Label(viewEntries, text = "Website: ", padx = padding, pady = padding, font = ("Ariel", 10))
+facebookViewLabel = Label(viewEntries, text = "Facebook: ", padx = padding, pady = padding, font = ("Ariel", 10))
+twitterViewLabel = Label(viewEntries, text = "Twitter: ", padx = padding, pady = padding, font = ("Ariel", 10))
+instagramViewLabel = Label(viewEntries, text = "Instragram: ", padx = padding, pady = padding, font = ("Ariel", 10))
+linkedinViewLabel = Label(viewEntries, text = "Linkedin: ", padx = padding, pady = padding, font = ("Ariel", 10))
+otherViewLabel = Label(viewEntries, text = "Other Information: ", padx = padding, pady = padding, font = ("Ariel", 10))
 
 # Add the text entries
-aliasViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = aliasVar)
-nameViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = nameVar)
-emailViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = emailVar)
-phoneViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = phoneVar)
-webViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = websiteVar)
-facebookViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = facebookVar)
-twitterViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = twitterVar)
-instagramViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = instagramVar)
-linkedinViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = linkedinVar)
-otherViewEntry = Entry(viewEntries, state = "readonly", width = 52, textvariable = otherVar)
+aliasViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = aliasVar, font = ("Ariel", 10))
+nameViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = nameVar, font = ("Ariel", 10))
+emailViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = emailVar, font = ("Ariel", 10))
+phoneViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = phoneVar, font = ("Ariel", 10))
+webViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = websiteVar, font = ("Ariel", 10))
+facebookViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = facebookVar, font = ("Ariel", 10))
+twitterViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = twitterVar, font = ("Ariel", 10))
+instagramViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = instagramVar, font = ("Ariel", 10))
+linkedinViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = linkedinVar, font = ("Ariel", 10))
+otherViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = otherVar, font = ("Ariel", 10))
 
 # Add the labels into a grid
 aliasViewLabel.grid(row = 1, column = 1, sticky = 'w')
@@ -165,33 +318,36 @@ instagramViewEntry.bind("<Button-3>", copy_text)
 linkedinViewEntry.bind("<Button-3>", copy_text)
 otherViewEntry.bind("<Button-3>", copy_text)
 
+# Add a button to edit
+editButton = Button(viewEntries, text = "Edit Entry", command = editValues, width = 8)
+editButton.grid(row = 11, column = 2)
 ################################################################################
 # SETTING UP ADDENTRIES
 ################################################################################
 
 # Add the labels to the addentries tabs
-aliasEditLabel = Label(addEntries, text = "Name/Alias: ", padx = padding, pady = padding)
-nameEditLabel = Label(addEntries, text = "Full Name: ", padx = padding, pady = padding)
-emailEditLabel = Label(addEntries, text = "Email: ", padx = padding, pady = padding)
-phoneEditLabel = Label(addEntries, text = "Phone Number: ", padx = padding, pady = padding)
-webEditLabel = Label(addEntries, text = "Website: ", padx = padding, pady = padding)
-facebookEditLabel = Label(addEntries, text = "Facebook: ", padx = padding, pady = padding)
-twitterEditLabel = Label(addEntries, text = "Twitter: ", padx = padding, pady = padding)
-instagramEditLabel = Label(addEntries, text = "Instragram: ", padx = padding, pady = padding)
-linkedinEditLabel = Label(addEntries, text = "Linkedin: ", padx = padding, pady = padding)
-otherEditLabel = Label(addEntries, text = "Other Information: ", padx = padding, pady = padding)
+aliasEditLabel = Label(addEntries, text = "Name/Alias: ", padx = padding, pady = padding, font = ("Ariel", 10))
+nameEditLabel = Label(addEntries, text = "Full Name: ", padx = padding, pady = padding, font = ("Ariel", 10))
+emailEditLabel = Label(addEntries, text = "Email: ", padx = padding, pady = padding, font = ("Ariel", 10))
+phoneEditLabel = Label(addEntries, text = "Phone Number: ", padx = padding, pady = padding, font = ("Ariel", 10))
+webEditLabel = Label(addEntries, text = "Website: ", padx = padding, pady = padding, font = ("Ariel", 10))
+facebookEditLabel = Label(addEntries, text = "Facebook: ", padx = padding, pady = padding, font = ("Ariel", 10))
+twitterEditLabel = Label(addEntries, text = "Twitter: ", padx = padding, pady = padding, font = ("Ariel", 10))
+instagramEditLabel = Label(addEntries, text = "Instragram: ", padx = padding, pady = padding, font = ("Ariel", 10))
+linkedinEditLabel = Label(addEntries, text = "Linkedin: ", padx = padding, pady = padding, font = ("Ariel", 10))
+otherEditLabel = Label(addEntries, text = "Other Information: ", padx = padding, pady = padding, font = ("Ariel", 10))
 
 # Add the text entry fields
-aliasEditEntry = Entry(addEntries, state = "normal", width = 52)
-nameEditEntry = Entry(addEntries, state = "normal", width = 52)
-emailEditEntry = Entry(addEntries, state = "normal", width = 52)
-phoneEditEntry = Entry(addEntries, state = "normal", width = 52)
-webEditEntry = Entry(addEntries, state = "normal", width = 52)
-facebookEditEntry = Entry(addEntries, state = "normal", width = 52)
-twitterEditEntry = Entry(addEntries, state = "normal", width = 52)
-instagramEditEntry = Entry(addEntries, state = "normal", width = 52)
-linkedinEditEntry = Entry(addEntries, state = "normal", width = 52)
-otherEditEntry = Entry(addEntries, state = "normal", width = 52)
+aliasEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+nameEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+emailEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+phoneEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+webEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+facebookEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+twitterEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+instagramEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+linkedinEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+otherEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
 
 # Add the labels into a grid
 aliasEditLabel.grid(row = 1, column = 1, sticky = 'w')
@@ -217,14 +373,12 @@ instagramEditEntry.grid(row = 8, column = 2, sticky = 'e')
 linkedinEditEntry.grid(row = 9, column = 2, sticky = 'e')
 otherEditEntry.grid(row = 10, column = 2, sticky = 'e')
 
-
+# intialize the database
+initialiseDB()
 ################################################################################
 # DEBUGGING
 ###############################################################################
-for i in range (100):
-    listTable.insert(END, "fish" + str(i))
 listTable.select_set(0)
-
 
 # start the window
 window.mainloop()

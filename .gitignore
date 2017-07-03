@@ -1,2 +1,3 @@
-#Ignore contacts.db
+#Ignore contacts.db and any CSV file
 contacts.db
+*.csv

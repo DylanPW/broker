@@ -169,13 +169,16 @@ def editValues():
 
 def saveCSV():
     global homeDir
-    saveFile = tkFileDialog.asksaveasfilename(initialdir = homeDir, title = "Select Save Location", filetypes = (("CSV","*.csv"),("All Files","*.*")))
-    with open(saveFile, "wb") as writeFile:
-        writeFile.write("id,alias,name,email,address,phone,website,facebook,twitter,instagram,linkedin,other\n")
-        for row in db_connect.execute("SELECT * FROM Contacts"):
-            writeRow = ",".join(str(dex) for dex in row)
-            writeFile.write(writeRow.encode())
-            writeFile.write("\n")
+    saveFile = tkFileDialog.asksaveasfilename(initialdir = homeDir, title = "Select Save Location", filetypes = (("CSV","*.csv"),("All Files","*.*")), defaultextension = ".csv")
+    try:
+        with open(saveFile, "wb") as writeFile:
+            writeFile.write("id,alias,name,email,address,phone,website,facebook,twitter,instagram,linkedin,other\n")
+            for row in db_connect.execute("SELECT * FROM Contacts"):
+                writeRow = ",".join(str(dex) for dex in row)
+                writeFile.write(writeRow.encode())
+                writeFile.write("\n")
+    except:
+        tkMessageBox.showerror("Error","File not saved!")
 
 # Search the database
 def searchDB():
@@ -340,11 +343,11 @@ searchFrame = Frame(viewEntries, bd = 1, relief = GROOVE, padx = padding/2, pady
 searchFrame.grid(row = 0, column = 1, columnspan = 2, sticky = 'we')
 aliasSearchLabel = Label(searchFrame, text = 'Search: ', padx = padding, pady = padding, font = ("Ariel", 10))
 aliasSearchLabel.grid(row = 0, column = 0)
-aliasSearchBox = Entry(searchFrame, font = ("Ariel", 10), width = 52)
+aliasSearchBox = Entry(searchFrame, font = ("Ariel", 10), width = 50)
 aliasSearchBox.grid(row = 0, column = 1, sticky = 'we', columnspan = 2)
-aliasSearchButton = Button(searchFrame, text = 'Search', font = ("Aiel", 10), width = 4)
+aliasSearchButton = Button(searchFrame, text = 'Search', font = ("Ariel", 10), width = 5)
 aliasSearchButton.grid(row = 0, column = 2, sticky = 'e')
-aliasClearButton = Button(searchFrame, text = 'Clear',font = ("Ariel", 10), width  = 4)
+aliasClearButton = Button(searchFrame, text = 'Clear',font = ("Ariel", 10), width  = 5)
 aliasClearButton.grid(row = 0, column = 3, sticky = 'e')
 
 # Add a button to edit

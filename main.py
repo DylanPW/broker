@@ -8,7 +8,7 @@
 
 #Import applicable modules
 from Tkinter import *
-import ttk, Tkconstants, tkFileDialog, tkMessageBox, platform, os.path, sys, csv
+import ttk, Tkconstants, tkFileDialog, tkMessageBox, platform, os.path, sys, csv, re
 from sqlite3 import *
 #Variables for text
 dbname = "Database Name Here"
@@ -25,7 +25,7 @@ unsavedChanges = False
 # Initalise the database connection
 def initialiseDB():
     #Globalise Variables
-    global db, db_connect, osPlatform, homeDir
+    global db, db_connect, osPlatform, homeDir, entries
     #Check if the database exists, if it does not prompt the user to create
     if os.path.exists("contacts.db"):
         db = connect(database = "contacts.db")
@@ -41,11 +41,13 @@ def initialiseDB():
             exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
             if exitError == "ok":
                 ErrorMsg()
+
     #Select the aliases from the database
-    db_connect.execute("SELECT alias FROM Contacts")
+    db_connect.execute("SELECT id, alias FROM Contacts")
     results = db_connect.fetchall()
+    entries = results
     for r in results:
-        listTable.insert(END, r)
+        listTable.insert(END, r[1])
     global index
     index = 0
 
@@ -57,55 +59,28 @@ def initialiseDB():
         homeDir = "$HOME"
 # Select the information from the database
 def SelectEntry(event):
+    print entries
+    print [i for i, v in enumerate(entries) if v[0] == 2] #Who the fuck knows why this works but it does
+
     global index
     #Take the index of the list, convert to string
     index = [str(r) for r in listTable.curselection()]
     index = str(int(index[0]) + 1)
 
-    # get the appropriate information for each field, and collapse the tuple
-    db_connect.execute("SELECT alias FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    aliasVar.set(results[0])
-
-    db_connect.execute("SELECT name FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    nameVar.set(results[0])
-
-    db_connect.execute("SELECT email FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    emailVar.set(results[0])
-
-    db_connect.execute("SELECT address FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    addressVar.set(results[0])
-
-    db_connect.execute("SELECT phone FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    phoneVar.set(results[0])
-
-    db_connect.execute("SELECT website FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    websiteVar.set(results[0])
-
-    db_connect.execute("SELECT facebook FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    facebookVar.set(results[0])
-
-    db_connect.execute("SELECT twitter FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    twitterVar.set(results[0])
-
-    db_connect.execute("SELECT instagram FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    instagramVar.set(results[0])
-
-    db_connect.execute("SELECT linkedin FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    linkedinVar.set(results[0])
-
-    db_connect.execute("SELECT other FROM Contacts WHERE alias = ('"+ listTable.selection_get() +"')")
-    results = [i[0] for i in db_connect.fetchall()]
-    otherVar.set(results[0])
+    db_connect.execute("SELECT * FROM Contacts WHERE id = ('"+ index +"')")
+    results = [i for i in db_connect.fetchall()]
+    print results
+    aliasVar.set(results[0][1])
+    nameVar.set(results[0][2])
+    emailVar.set(results[0][3])
+    addressVar.set(results[0][4])
+    phoneVar.set(results[0][5])
+    websiteVar.set(results[0][6])
+    facebookVar.set(results[0][7])
+    twitterVar.set(results[0][8])
+    instagramVar.set(results[0][9])
+    linkedinVar.set(results[0][10])
+    otherVar.set(results[0][11])
 
     window.update()
 
@@ -190,7 +165,6 @@ def editValues():
             window.update()
     else:
         tkMessageBox.showerror("Error","Please select an Entry")
-
 #Search for applicable
 
 def saveCSV():

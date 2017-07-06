@@ -114,13 +114,16 @@ def editValues():
                     phone  = ('"+ phoneViewEntry.get() +"'), website = ('"+ webViewEntry.get() +"'), facebook = ('"+ facebookViewEntry.get() +"'), twitter = ('"+ twitterViewEntry.get() +"'), \
                     instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ currentID +"')")
                     db.commit()
+
                     #Reload the list
-                    db_connect.execute("SELECT alias FROM Contacts")
-                    results = db_connect.fetchall()
                     listTable.delete(0, END)
+                    db_connect.execute("SELECT id, alias FROM Contacts")
+                    results = db_connect.fetchall()
+                    entries = results
                     for r in results:
-                        listTable.insert(END, r)
-                    aliasSearchBox.delete(0, END)
+                        listTable.insert(END, r[1])
+                    global index
+                    index = 0
 
                 elif promptResult == False:
                     aliasVar.set(aliasBackup)
@@ -169,6 +172,41 @@ def editValues():
     except:
         tkMessageBox.showerror("Error","An error occured!")
 
+# function to add an entry
+def addEntry():
+    if aliasEditEntry.get() != "":
+        db_connect.execute("INSERT INTO Contacts (alias, name, email, address, phone, website, facebook, twitter, instagram, linkedin, other) \
+        VALUES (('"+ aliasEditEntry.get() +"'),('"+ nameEditEntry.get() +"'),('"+ emailEditEntry.get() +"'),('"+ addressEditEntry.get() +"'), \
+        ('"+ phoneEditEntry.get() +"'),('"+ webEditEntry.get() +"'),('"+ facebookEditEntry.get() +"'),('"+ twitterEditEntry.get() +"'), \
+        ('"+ instagramEditEntry.get() +"'),('"+ linkedinEditEntry.get() +"'),('"+ otherEditEntry.get() +"'))")
+        db.commit()
+
+
+        #Reload the list
+        db_connect.execute("SELECT id, alias FROM Contacts")
+        listTable.delete(0, END)
+        results = db_connect.fetchall()
+        entries = results
+        for r in results:
+            listTable.insert(END, r[1])
+        global index
+        index = 0
+
+        #Clear the editentries
+        aliasEditEntry.delete(0, END)
+        nameEditEntry.delete(0, END)
+        emailEditEntry.delete(0, END)
+        addressEditEntry.delete(0, END)
+        phoneEditEntry.delete(0, END)
+        webEditEntry.delete(0, END)
+        facebookEditEntry.delete(0, END)
+        twitterEditEntry.delete(0, END)
+        instagramEditEntry.delete(0, END)
+        linkedinEditEntry.delete(0, END)
+        otherEditEntry.delete(0, END)
+    else:
+        tkMessageBox.showerror("Error","You must have an alias")
+
 def saveCSV():
     global homeDir
     saveFile = tkFileDialog.asksaveasfilename(initialdir = homeDir, title = "Select Save Location", filetypes = (("CSV","*.csv"),("All Files","*.*")), defaultextension = ".csv")
@@ -196,6 +234,7 @@ def searchDB():
     except:
         tkMessageBox.showerror("Error","An error occured, did your search contain invalid strings?")
 
+#Clear the search field
 def clearSearch():
     try:
         listTable.delete(0, END)
@@ -441,7 +480,7 @@ dummyaliasClearButton = Button(dummysearchFrame, text = 'Clear',font = ("Ariel",
 dummyaliasClearButton.grid(row = 0, column = 3, sticky = 'e')
 
 #Implement the add entry button
-addButton = Button(addEntries, text = "Add Entry", width = 8)
+addButton = Button(addEntries, command = addEntry, text = "Add Entry", width = 8)
 addButton.grid(row = 12, column = 2)
 
 ################################################################################

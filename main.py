@@ -20,7 +20,7 @@ padding = 5
 
 # Key Variables
 editing = False
-unsavedChanges = False
+currentID = 0
 
 # Initalise the database connection
 def initialiseDB():
@@ -59,17 +59,16 @@ def initialiseDB():
         homeDir = "$HOME"
 # Select the information from the database
 def SelectEntry(event):
-    print entries
-    print [i for i, v in enumerate(entries) if v[0] == 2] #Who the fuck knows why this works but it does
-
-    global index
-    #Take the index of the list, convert to string
+    global index, currentID
+    #Take the index of the list and search main list of entries for it
     index = [str(r) for r in listTable.curselection()]
-    index = str(int(index[0]) + 1)
+    index = int(index[0]) + 1
+    index = [i for i, v in enumerate(entries) if v[0] == index]
+    index[0] += 1
+    currentID = str(index)
+    db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
+    results = db_connect.fetchall()
 
-    db_connect.execute("SELECT * FROM Contacts WHERE id = ('"+ index +"')")
-    results = [i for i in db_connect.fetchall()]
-    print results
     aliasVar.set(results[0][1])
     nameVar.set(results[0][2])
     emailVar.set(results[0][3])
@@ -87,7 +86,7 @@ def SelectEntry(event):
 
 # change the values of the View Entry Boxes to accept modifications
 def editValues():
-    global index, editing
+    global index, editing, results, currentID
     global aliasVar, nameVar, emailVar, phoneVar, websiteVar, facebookVar, twitterVar, instagramVar, linkedinVar, otherVar
     global aliasBackup, nameBackup, emailBackup, addressBackup, phoneBackup, websiteBackup, facebookBackup, twitterBackup, instagramBackup, linkedinBackup, otherBackup
     global aliasViewEntry, nameViewEntry, emailViewEntry, phoneViewEntry, websiteViewEntry, facebookViewEntry, twitterViewEntry, instagramViewEntry, linkedinViewEntry, otherViewEntry
@@ -113,7 +112,7 @@ def editValues():
             if promptResult == True and aliasViewEntry.get() != "":
                 db_connect.execute("UPDATE Contacts SET alias = ('"+ aliasViewEntry.get() +"'), name = ('"+ nameViewEntry.get() +"'), email = ('"+ emailViewEntry.get() +"'), address = ('"+ addressViewEntry.get() +"'), \
                 phone  = ('"+ phoneViewEntry.get() +"'), website = ('"+ webViewEntry.get() +"'), facebook = ('"+ facebookViewEntry.get() +"'), twitter = ('"+ twitterViewEntry.get() +"'), \
-                instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ index +"')")
+                instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ currentID +"')")
                 db.commit()
                 #Reload the list
                 db_connect.execute("SELECT alias FROM Contacts")
@@ -121,6 +120,8 @@ def editValues():
                 listTable.delete(0, END)
                 for r in results:
                     listTable.insert(END, r)
+                aliasSearchBox.delete(0, END)
+
             elif promptResult == False:
                 aliasVar.set(aliasBackup)
                 nameVar.set(nameBackup)
@@ -182,10 +183,23 @@ def saveCSV():
 
 # Search the database
 def searchDB():
-    db_connect.execute("SELECT alias FROM Contacts")
+    global searchText
+    searchText = str("%"+str(aliasSearchBox.get())+"%")
+    db_connect.execute("SELECT id, alias FROM Contacts WHERE alias LIKE (?)", (searchText,))
     results = db_connect.fetchall()
+    entries = results
+    listTable.delete(0, END)
     for r in results:
-        listTable.insert(END, r)
+        listTable.insert(END, r[1])
+
+def clearSearch():
+    listTable.delete(0, END)
+    db_connect.execute("SELECT id, alias FROM Contacts")
+    results = db_connect.fetchall()
+    entries = results
+    for r in results:
+        listTable.insert(END, r[1])
+    aliasSearchBox.delete(0, END)
 
 # triggered off left button click on text_field
 def copy_text(event):
@@ -263,11 +277,9 @@ listFrame.pack(side = "left", fill = BOTH, expand = True)
 tabs = ttk.Notebook(mainFrame)
 viewEntries = ttk.Frame(tabs)
 addEntries = ttk.Frame(tabs)
-searchEntries = ttk.Frame(tabs)
 tabs.pack(side = "right", fill = BOTH, expand = True)
 tabs.add(viewEntries, text='View Entry')
 tabs.add(addEntries, text='Add Entries')
-tabs.add(searchEntries, text = 'Search Entries')
 
 ################################################################################
 # SETTING UP VIEWENTRIES
@@ -345,9 +357,9 @@ aliasSearchLabel = Label(searchFrame, text = 'Search: ', padx = padding, pady = 
 aliasSearchLabel.grid(row = 0, column = 0)
 aliasSearchBox = Entry(searchFrame, font = ("Ariel", 10), width = 50)
 aliasSearchBox.grid(row = 0, column = 1, sticky = 'we', columnspan = 2)
-aliasSearchButton = Button(searchFrame, text = 'Search', font = ("Ariel", 10), width = 5)
+aliasSearchButton = Button(searchFrame, command = searchDB, text = 'Search', font = ("Ariel", 10), width = 5)
 aliasSearchButton.grid(row = 0, column = 2, sticky = 'e')
-aliasClearButton = Button(searchFrame, text = 'Clear',font = ("Ariel", 10), width  = 5)
+aliasClearButton = Button(searchFrame, command = clearSearch, text = 'Clear',font = ("Ariel", 10), width  = 5)
 aliasClearButton.grid(row = 0, column = 3, sticky = 'e')
 
 # Add a button to edit

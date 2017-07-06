@@ -90,83 +90,84 @@ def editValues():
     global aliasVar, nameVar, emailVar, phoneVar, websiteVar, facebookVar, twitterVar, instagramVar, linkedinVar, otherVar
     global aliasBackup, nameBackup, emailBackup, addressBackup, phoneBackup, websiteBackup, facebookBackup, twitterBackup, instagramBackup, linkedinBackup, otherBackup
     global aliasViewEntry, nameViewEntry, emailViewEntry, phoneViewEntry, websiteViewEntry, facebookViewEntry, twitterViewEntry, instagramViewEntry, linkedinViewEntry, otherViewEntry
+    try:
+        if index != 0:
+            # Change the state to readonly and save the entries to the database
+            if editing == True:
+                aliasViewEntry.configure(state = "readonly")
+                nameViewEntry.configure(state = "readonly")
+                emailViewEntry.configure(state = "readonly")
+                addressViewEntry.configure(state = "readonly")
+                phoneViewEntry.configure(state = "readonly")
+                webViewEntry.configure(state = "readonly")
+                facebookViewEntry.configure(state = "readonly")
+                twitterViewEntry.configure(state = "readonly")
+                instagramViewEntry.configure(state = "readonly")
+                linkedinViewEntry.configure(state = "readonly")
+                otherViewEntry.configure(state = "readonly")
+                editButton.configure(text = "Edit Entry")
+                editing = False
 
-    if index != 0:
-        # Change the state to readonly and save the entries to the database
-        if editing == True:
-            aliasViewEntry.configure(state = "readonly")
-            nameViewEntry.configure(state = "readonly")
-            emailViewEntry.configure(state = "readonly")
-            addressViewEntry.configure(state = "readonly")
-            phoneViewEntry.configure(state = "readonly")
-            webViewEntry.configure(state = "readonly")
-            facebookViewEntry.configure(state = "readonly")
-            twitterViewEntry.configure(state = "readonly")
-            instagramViewEntry.configure(state = "readonly")
-            linkedinViewEntry.configure(state = "readonly")
-            otherViewEntry.configure(state = "readonly")
-            editButton.configure(text = "Edit Entry")
-            editing = False
+                promptResult = tkMessageBox.askokcancel("Save Entry?","Would you like to save this entry?")
+                if promptResult == True and aliasViewEntry.get() != "":
+                    db_connect.execute("UPDATE Contacts SET alias = ('"+ aliasViewEntry.get() +"'), name = ('"+ nameViewEntry.get() +"'), email = ('"+ emailViewEntry.get() +"'), address = ('"+ addressViewEntry.get() +"'), \
+                    phone  = ('"+ phoneViewEntry.get() +"'), website = ('"+ webViewEntry.get() +"'), facebook = ('"+ facebookViewEntry.get() +"'), twitter = ('"+ twitterViewEntry.get() +"'), \
+                    instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ currentID +"')")
+                    db.commit()
+                    #Reload the list
+                    db_connect.execute("SELECT alias FROM Contacts")
+                    results = db_connect.fetchall()
+                    listTable.delete(0, END)
+                    for r in results:
+                        listTable.insert(END, r)
+                    aliasSearchBox.delete(0, END)
 
-            promptResult = tkMessageBox.askokcancel("Save Entry?","Would you like to save this entry?")
-            if promptResult == True and aliasViewEntry.get() != "":
-                db_connect.execute("UPDATE Contacts SET alias = ('"+ aliasViewEntry.get() +"'), name = ('"+ nameViewEntry.get() +"'), email = ('"+ emailViewEntry.get() +"'), address = ('"+ addressViewEntry.get() +"'), \
-                phone  = ('"+ phoneViewEntry.get() +"'), website = ('"+ webViewEntry.get() +"'), facebook = ('"+ facebookViewEntry.get() +"'), twitter = ('"+ twitterViewEntry.get() +"'), \
-                instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ currentID +"')")
-                db.commit()
-                #Reload the list
-                db_connect.execute("SELECT alias FROM Contacts")
-                results = db_connect.fetchall()
-                listTable.delete(0, END)
-                for r in results:
-                    listTable.insert(END, r)
-                aliasSearchBox.delete(0, END)
+                elif promptResult == False:
+                    aliasVar.set(aliasBackup)
+                    nameVar.set(nameBackup)
+                    emailVar.set(emailBackup)
+                    addressVar.set(addressBackup)
+                    phoneVar.set(phoneBackup)
+                    websiteVar.set(websiteBackup)
+                    facebookVar.set(facebookBackup)
+                    twitterVar.set(twitterBackup)
+                    instagramVar.set(instagramBackup)
+                    linkedinVar.set(linkedinBackup)
+                    otherVar.set(otherBackup)
 
-            elif promptResult == False:
-                aliasVar.set(aliasBackup)
-                nameVar.set(nameBackup)
-                emailVar.set(emailBackup)
-                addressVar.set(addressBackup)
-                phoneVar.set(phoneBackup)
-                websiteVar.set(websiteBackup)
-                facebookVar.set(facebookBackup)
-                twitterVar.set(twitterBackup)
-                instagramVar.set(instagramBackup)
-                linkedinVar.set(linkedinBackup)
-                otherVar.set(otherBackup)
+                    window.update()
+            else:
+                # Save the previous contents of the entries
+                aliasBackup = aliasViewEntry.get()
+                nameBackup = nameViewEntry.get()
+                emailBackup = emailViewEntry.get()
+                addressBackup = addressViewEntry.get()
+                phoneBackup = phoneViewEntry.get()
+                websiteBackup = webViewEntry.get()
+                facebookBackup = facebookViewEntry.get()
+                twitterBackup = twitterViewEntry.get()
+                instagramBackup = instagramViewEntry.get()
+                linkedinBackup = linkedinViewEntry.get()
+                otherBackup = otherViewEntry.get()
 
+                aliasViewEntry.configure(state = "normal")
+                nameViewEntry.configure(state = "normal")
+                emailViewEntry.configure(state = "normal")
+                addressViewEntry.configure(state = "normal")
+                phoneViewEntry.configure(state = "normal")
+                webViewEntry.configure(state = "normal")
+                facebookViewEntry.configure(state = "normal")
+                twitterViewEntry.configure(state = "normal")
+                instagramViewEntry.configure(state = "normal")
+                linkedinViewEntry.configure(state = "normal")
+                otherViewEntry.configure(state = "normal")
+                editButton.configure(text = "Save Entry")
+                editing = True
                 window.update()
         else:
-            # Save the previous contents of the entries
-            aliasBackup = aliasViewEntry.get()
-            nameBackup = nameViewEntry.get()
-            emailBackup = emailViewEntry.get()
-            addressBackup = addressViewEntry.get()
-            phoneBackup = phoneViewEntry.get()
-            websiteBackup = webViewEntry.get()
-            facebookBackup = facebookViewEntry.get()
-            twitterBackup = twitterViewEntry.get()
-            instagramBackup = instagramViewEntry.get()
-            linkedinBackup = linkedinViewEntry.get()
-            otherBackup = otherViewEntry.get()
-
-            aliasViewEntry.configure(state = "normal")
-            nameViewEntry.configure(state = "normal")
-            emailViewEntry.configure(state = "normal")
-            addressViewEntry.configure(state = "normal")
-            phoneViewEntry.configure(state = "normal")
-            webViewEntry.configure(state = "normal")
-            facebookViewEntry.configure(state = "normal")
-            twitterViewEntry.configure(state = "normal")
-            instagramViewEntry.configure(state = "normal")
-            linkedinViewEntry.configure(state = "normal")
-            otherViewEntry.configure(state = "normal")
-            editButton.configure(text = "Save Entry")
-            editing = True
-            window.update()
-    else:
-        tkMessageBox.showerror("Error","Please select an Entry")
-#Search for applicable
+            tkMessageBox.showerror("Error","Please select an Entry")
+    except:
+        tkMessageBox.showerror("Error","An error occured!")
 
 def saveCSV():
     global homeDir
@@ -184,23 +185,28 @@ def saveCSV():
 # Search the database
 def searchDB():
     global searchText
-    searchText = str("%"+str(aliasSearchBox.get())+"%")
-    db_connect.execute("SELECT id, alias FROM Contacts WHERE alias LIKE (?)", (searchText,))
-    results = db_connect.fetchall()
-    entries = results
-    listTable.delete(0, END)
-    for r in results:
-        listTable.insert(END, r[1])
+    try:
+        searchText = str("%"+str(aliasSearchBox.get())+"%")
+        db_connect.execute("SELECT id, alias FROM Contacts WHERE alias LIKE (?)", (searchText,))
+        results = db_connect.fetchall()
+        entries = results
+        listTable.delete(0, END)
+        for r in results:
+            listTable.insert(END, r[1])
+    except:
+        tkMessageBox.showerror("Error","An error occured, did your search contain invalid strings?")
 
 def clearSearch():
-    listTable.delete(0, END)
-    db_connect.execute("SELECT id, alias FROM Contacts")
-    results = db_connect.fetchall()
-    entries = results
-    for r in results:
-        listTable.insert(END, r[1])
-    aliasSearchBox.delete(0, END)
-
+    try:
+        listTable.delete(0, END)
+        db_connect.execute("SELECT id, alias FROM Contacts")
+        results = db_connect.fetchall()
+        entries = results
+        for r in results:
+            listTable.insert(END, r[1])
+        aliasSearchBox.delete(0, END)
+    except:
+        tkMessageBox.showerror("Error","An error occured!")
 # triggered off left button click on text_field
 def copy_text(event):
     field_value = event.widget.get()
@@ -422,6 +428,19 @@ instagramEditEntry.grid(row = 9, column = 2, sticky = 'e')
 linkedinEditEntry.grid(row = 10, column = 2, sticky = 'e')
 otherEditEntry.grid(row = 11, column = 2, sticky = 'e')
 
+#Implement a dummy search frame for UI continuity
+dummysearchFrame = Frame(addEntries, bd = 1, relief = GROOVE, padx = padding/2, pady = padding/2)
+dummysearchFrame.grid(row = 0, column = 1, columnspan = 2, sticky = 'we')
+dummyaliasSearchLabel = Label(dummysearchFrame, text = 'Search: ', padx = padding, pady = padding, font = ("Ariel", 10), state = DISABLED)
+dummyaliasSearchLabel.grid(row = 0, column = 0)
+dummyaliasSearchBox = Entry(dummysearchFrame, font = ("Ariel", 10), width = 50, state = DISABLED)
+dummyaliasSearchBox.grid(row = 0, column = 1, sticky = 'we', columnspan = 2)
+dummyaliasSearchButton = Button(dummysearchFrame, text = 'Search', font = ("Ariel", 10), width = 5, state = DISABLED)
+dummyaliasSearchButton.grid(row = 0, column = 2, sticky = 'e')
+dummyaliasClearButton = Button(dummysearchFrame, text = 'Clear',font = ("Ariel", 10), width  = 5, state = DISABLED)
+dummyaliasClearButton.grid(row = 0, column = 3, sticky = 'e')
+
+#Implement the add entry button
 addButton = Button(addEntries, text = "Add Entry", width = 8)
 addButton.grid(row = 12, column = 2)
 

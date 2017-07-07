@@ -28,4 +28,4 @@ Please report any bugs or issues as you see fit.
     - Editing Existing Database Entries
     - Exporting to csv
 ## 0.1b
--Fixed bug regarding editing entries
+- Fixed bug regarding editing entries

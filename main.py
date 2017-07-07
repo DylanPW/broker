@@ -70,8 +70,11 @@ def SelectEntry(event):
     index = [str(r) for r in listTable.curselection()]
     index = int(index[0]) + 1
     index = [i for i, v in enumerate(entries) if v[0] == index]
-    index[0] += 1
-    currentID = str(index)
+    try:
+        index[0] += 1
+    except:
+        index[0] += 1
+    currentID = str(index[0])
     db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
     results = db_connect.fetchall()
 
@@ -128,8 +131,24 @@ def editValues():
                     entries = results
                     for r in results:
                         listTable.insert(END, r[1])
-                    global index
                     index = 0
+                    print currentID
+                    db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(currentID,))
+                    results = db_connect.fetchall()
+
+                    aliasVar.set(results[0][1])
+                    nameVar.set(results[0][2])
+                    emailVar.set(results[0][3])
+                    addressVar.set(results[0][4])
+                    phoneVar.set(results[0][5])
+                    websiteVar.set(results[0][6])
+                    facebookVar.set(results[0][7])
+                    twitterVar.set(results[0][8])
+                    instagramVar.set(results[0][9])
+                    linkedinVar.set(results[0][10])
+                    otherVar.set(results[0][11])
+
+                    window.update()
 
                 elif promptResult == False:
                     aliasVar.set(aliasBackup)

@@ -2,12 +2,8 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.1b;
+# Version 0.1d;
 #
-# Working Features include:
-# - Adding entries to database
-# - Editing Existing Database Entries
-# - Exporting to csv
 #
 # Please report any bugs or issues as you see fit.
 
@@ -27,6 +23,8 @@ padding = 5
 # Key Variables
 editing = False
 currentID = 0
+
+#Create new database (first launch)
 def createNewDB():
     tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
     if True:
@@ -37,8 +35,7 @@ def createNewDB():
 
     else:
         exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
-        if exitError == "ok":
-            ErrorMsg()
+        ErrorMsg()
 
 
 # Initalise the database connection
@@ -66,7 +63,7 @@ def initialiseDB():
         else:
             homeDir = "$HOME"
 
-        listTable.select_set(0)
+
     else:
         createNewDB()
         window.destroy()
@@ -74,32 +71,35 @@ def initialiseDB():
 
 # Select the information from the database
 def SelectEntry(event):
-    global index, currentID
-    #Take the index of the list and search main list of entries for it
-    index = [str(r) for r in listTable.curselection()]
-    index = int(index[0]) + 1
-    index = [i for i, v in enumerate(entries) if v[0] == index]
     try:
-        index[0] += 1
+        global index, currentID
+        #Take the index of the list and search main list of entries for it
+        index = [str(r) for r in listTable.curselection()]
+        index = int(index[0]) + 1
+        index = [i for i, v in enumerate(entries) if v[0] == index]
+        try:
+            index[0] += 1
+        except:
+            index[0] += 1
+        currentID = str(index[0])
+        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
+        results = db_connect.fetchall()
+
+        aliasVar.set(results[0][1])
+        nameVar.set(results[0][2])
+        emailVar.set(results[0][3])
+        addressVar.set(results[0][4])
+        phoneVar.set(results[0][5])
+        websiteVar.set(results[0][6])
+        facebookVar.set(results[0][7])
+        twitterVar.set(results[0][8])
+        instagramVar.set(results[0][9])
+        linkedinVar.set(results[0][10])
+        otherVar.set(results[0][11])
+
+        window.update()
     except:
-        index[0] += 1
-    currentID = str(index[0])
-    db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
-    results = db_connect.fetchall()
-
-    aliasVar.set(results[0][1])
-    nameVar.set(results[0][2])
-    emailVar.set(results[0][3])
-    addressVar.set(results[0][4])
-    phoneVar.set(results[0][5])
-    websiteVar.set(results[0][6])
-    facebookVar.set(results[0][7])
-    twitterVar.set(results[0][8])
-    instagramVar.set(results[0][9])
-    linkedinVar.set(results[0][10])
-    otherVar.set(results[0][11])
-
-    window.update()
+        tkMessageBox.showerror("Error", "No index selected.")
 
 
 # change the values of the View Entry Boxes to accept modifications

@@ -2,7 +2,7 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.1;
+# Version 0.1b;
 #
 # Working Features include:
 # - Adding entries to database
@@ -27,6 +27,19 @@ padding = 5
 # Key Variables
 editing = False
 currentID = 0
+def createNewDB():
+    tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
+    if True:
+        db = connect(database = "contacts.db")
+        db.row_factory = lambda cursor, row: row[0]
+        db_connect = db.cursor()
+        db_connect.execute("CREATE TABLE Contacts (id integer PRIMARY KEY, alias text NOT NULL, name text, email text, address text, phone text, website text, facebook text, twitter text, instagram text, linkedin text, other text)")
+
+    else:
+        exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
+        if exitError == "ok":
+            ErrorMsg()
+
 
 # Initalise the database connection
 def initialiseDB():
@@ -36,33 +49,29 @@ def initialiseDB():
     if os.path.exists("contacts.db"):
         db = connect(database = "contacts.db")
         db_connect = db.cursor()
-    else:
-        createNew = tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
-        if createNew == True:
-            db = connect(database = "contacts.db")
-            db.row_factory = lambda cursor, row: row[0]
-            db_connect = db.cursor()
-            db_connect.execute("CREATE TABLE Contacts (id integer PRIMARY KEY, alias text NOT NULL, name text, email text, address text, phone text, website text, facebook text, twitter text, instagram text, linkedin text, other text)")
-        elif createNew == False:
-            exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
-            if exitError == "ok":
-                ErrorMsg()
 
-    #Select the aliases from the database
-    db_connect.execute("SELECT id, alias FROM Contacts")
-    results = db_connect.fetchall()
-    entries = results
-    for r in results:
-        listTable.insert(END, r[1])
-    global index
-    index = 0
+        #Select the aliases from the database
+        db_connect.execute("SELECT id, alias FROM Contacts")
+        results = db_connect.fetchall()
+        entries = results
+        for r in results:
+            listTable.insert(END, r[1])
+        global index
+        index = 0
 
-    #Check the platform
-    osPlatform = platform.system()
-    if osPlatform == 'Windows':
-        homeDir = "%Homedrive%%Homepath%"
+        #Check the platform
+        osPlatform = platform.system()
+        if osPlatform == 'Windows':
+            homeDir = "%Homedrive%%Homepath%"
+        else:
+            homeDir = "$HOME"
+
+        listTable.select_set(0)
     else:
-        homeDir = "$HOME"
+        createNewDB()
+        window.destroy()
+        os.system('python main.py')
+
 # Select the information from the database
 def SelectEntry(event):
     global index, currentID
@@ -132,7 +141,6 @@ def editValues():
                     for r in results:
                         listTable.insert(END, r[1])
                     index = 0
-                    print currentID
                     db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(currentID,))
                     results = db_connect.fetchall()
 
@@ -516,7 +524,7 @@ addButton.grid(row = 12, column = 2)
 ################################################################################
 # intialize the database
 initialiseDB()
-listTable.select_set(0)
+
 
 # start the window
 window.mainloop()

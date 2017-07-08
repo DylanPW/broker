@@ -22,10 +22,13 @@ Please report any bugs or issues as you see fit.
 
 # Changelog:
 
-## 0.1
+### 0.1
 - Initial commit of moderately featured version. Working Features include:
     - Adding entries to database
     - Editing Existing Database Entries
     - Exporting to csv
-## 0.1b
+### 0.1b
 - Fixed bug regarding editing entries
+
+### 0.1c
+- Fixed adding new entries resulting in crash after first launch

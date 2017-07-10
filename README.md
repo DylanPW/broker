@@ -1,4 +1,4 @@
-at# broker
+# broker
 
 A simple contacts database script written in python, featuring storing data in an sqlite database and eventually exporting to a CSV.
 

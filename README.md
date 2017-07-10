@@ -32,6 +32,3 @@ Please report any bugs or issues as you see fit.
 
 ### 0.1c
 - Fixed adding new entries resulting in crash after first launch
-
-### 0.1d
-- Fixed clicking list of entries while there are no entries

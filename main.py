@@ -2,12 +2,8 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.1b;
+# Version 0.1d;
 #
-# Working Features include:
-# - Adding entries to database
-# - Editing Existing Database Entries
-# - Exporting to csv
 #
 # Please report any bugs or issues as you see fit.
 
@@ -27,6 +23,8 @@ padding = 5
 # Key Variables
 editing = False
 currentID = 0
+
+#Create new database (first launch)
 def createNewDB():
     tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
     if True:
@@ -37,8 +35,7 @@ def createNewDB():
 
     else:
         exitError = tkMessageBox.showerror("Error", "No database, exiting ...")
-        if exitError == "ok":
-            ErrorMsg()
+        ErrorMsg()
 
 
 # Initalise the database connection
@@ -66,7 +63,7 @@ def initialiseDB():
         else:
             homeDir = "$HOME"
 
-        listTable.select_set(0)
+
     else:
         createNewDB()
         window.destroy()
@@ -74,32 +71,35 @@ def initialiseDB():
 
 # Select the information from the database
 def SelectEntry(event):
-    global index, currentID
-    #Take the index of the list and search main list of entries for it
-    index = [str(r) for r in listTable.curselection()]
-    index = int(index[0]) + 1
-    index = [i for i, v in enumerate(entries) if v[0] == index]
     try:
-        index[0] += 1
+        global index, currentID
+        #Take the index of the list and search main list of entries for it
+        index = [str(r) for r in listTable.curselection()]
+        index = int(index[0]) + 1
+        index = [i for i, v in enumerate(entries) if v[0] == index]
+        try:
+            index[0] += 1
+        except:
+            index[0] += 1
+        currentID = str(index[0])
+        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
+        results = db_connect.fetchall()
+
+        aliasVar.set(results[0][1])
+        nameVar.set(results[0][2])
+        emailVar.set(results[0][3])
+        addressVar.set(results[0][4])
+        phoneVar.set(results[0][5])
+        websiteVar.set(results[0][6])
+        facebookVar.set(results[0][7])
+        twitterVar.set(results[0][8])
+        instagramVar.set(results[0][9])
+        linkedinVar.set(results[0][10])
+        otherVar.set(results[0][11])
+
+        window.update()
     except:
-        index[0] += 1
-    currentID = str(index[0])
-    db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
-    results = db_connect.fetchall()
-
-    aliasVar.set(results[0][1])
-    nameVar.set(results[0][2])
-    emailVar.set(results[0][3])
-    addressVar.set(results[0][4])
-    phoneVar.set(results[0][5])
-    websiteVar.set(results[0][6])
-    facebookVar.set(results[0][7])
-    twitterVar.set(results[0][8])
-    instagramVar.set(results[0][9])
-    linkedinVar.set(results[0][10])
-    otherVar.set(results[0][11])
-
-    window.update()
+        tkMessageBox.showerror("Error", "No index selected.")
 
 
 # change the values of the View Entry Boxes to accept modifications
@@ -336,7 +336,14 @@ titleLabel.pack(side = "top", fill = X, expand = False)
 
 # Add the main frame (har har)
 mainFrame = LabelFrame(window, text='Client Information', padx = 5, pady = 5)
-mainFrame.pack(side = "left", fill = BOTH, expand = True)
+mainFrame.pack(side = "top", fill = BOTH, expand = True)
+
+# add a status frame
+statusFrame = Frame(window)
+statusFrame.pack(side = "bottom", fill = BOTH, expand = True)
+
+statusLabel = Label(statusFrame, text = "BELH", font = ('Ariel', 10))
+statusLabel.pack(side = RIGHT)
 
 # Add the listbox Frame
 listFrame = Frame(mainFrame, bd = 1, relief = SUNKEN)
@@ -380,17 +387,17 @@ linkedinViewLabel = Label(viewEntries, text = "Linkedin: ", padx = padding, pady
 otherViewLabel = Label(viewEntries, text = "Other Information: ", padx = padding, pady = padding, font = ("Ariel", 10))
 
 # Add the text entries
-aliasViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = aliasVar, font = ("Ariel", 10))
-nameViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = nameVar, font = ("Ariel", 10))
-emailViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = emailVar, font = ("Ariel", 10))
-addressViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = addressVar, font = ("Ariel", 10))
-phoneViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = phoneVar, font = ("Ariel", 10))
-webViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = websiteVar, font = ("Ariel", 10))
-facebookViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = facebookVar, font = ("Ariel", 10))
-twitterViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = twitterVar, font = ("Ariel", 10))
-instagramViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = instagramVar, font = ("Ariel", 10))
-linkedinViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = linkedinVar, font = ("Ariel", 10))
-otherViewEntry = Entry(viewEntries, state = "readonly", width = 51, textvariable = otherVar, font = ("Ariel", 10))
+aliasViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = aliasVar, font = ("Ariel", 10))
+nameViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = nameVar, font = ("Ariel", 10))
+emailViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = emailVar, font = ("Ariel", 10))
+addressViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = addressVar, font = ("Ariel", 10))
+phoneViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = phoneVar, font = ("Ariel", 10))
+webViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = websiteVar, font = ("Ariel", 10))
+facebookViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = facebookVar, font = ("Ariel", 10))
+twitterViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = twitterVar, font = ("Ariel", 10))
+instagramViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = instagramVar, font = ("Ariel", 10))
+linkedinViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = linkedinVar, font = ("Ariel", 10))
+otherViewEntry = Entry(viewEntries, state = "readonly", width =64, textvariable = otherVar, font = ("Ariel", 10))
 
 # Add the labels into a grid
 aliasViewLabel.grid(row = 1, column = 1, sticky = 'w')
@@ -432,11 +439,11 @@ linkedinViewEntry.bind("<Button-3>", copy_text)
 otherViewEntry.bind("<Button-3>", copy_text)
 
 #Implement the Search Frame
-searchFrame = Frame(viewEntries, bd = 1, relief = GROOVE, padx = padding/2, pady = padding/2)
+searchFrame = Frame(viewEntries, bd = 1, relief = GROOVE)
 searchFrame.grid(row = 0, column = 1, columnspan = 2, sticky = 'we')
 aliasSearchLabel = Label(searchFrame, text = 'Search: ', padx = padding, pady = padding, font = ("Ariel", 10))
 aliasSearchLabel.grid(row = 0, column = 0)
-aliasSearchBox = Entry(searchFrame, font = ("Ariel", 10), width = 50)
+aliasSearchBox = Entry(searchFrame, font = ("Ariel", 10), width = 64)
 aliasSearchBox.grid(row = 0, column = 1, sticky = 'we', columnspan = 2)
 aliasSearchButton = Button(searchFrame, command = searchDB, text = 'Search', font = ("Ariel", 10), width = 5)
 aliasSearchButton.grid(row = 0, column = 2, sticky = 'e')
@@ -465,17 +472,17 @@ linkedinEditLabel = Label(addEntries, text = "Linkedin: ", padx = padding, pady 
 otherEditLabel = Label(addEntries, text = "Other Information: ", padx = padding, pady = padding, font = ("Ariel", 10))
 
 # Add the text entry fields
-aliasEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-nameEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-emailEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-addressEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-phoneEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-webEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-facebookEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-twitterEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-instagramEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-linkedinEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
-otherEditEntry = Entry(addEntries, state = "normal", width = 51, font = ("Ariel", 10))
+aliasEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+nameEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+emailEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+addressEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+phoneEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+webEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+facebookEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+twitterEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+instagramEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+linkedinEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
+otherEditEntry = Entry(addEntries, state = "normal", width = 64, font = ("Ariel", 10))
 
 # Add the labels into a grid
 aliasEditLabel.grid(row = 1, column = 1, sticky = 'w')
@@ -504,11 +511,11 @@ linkedinEditEntry.grid(row = 10, column = 2, sticky = 'e')
 otherEditEntry.grid(row = 11, column = 2, sticky = 'e')
 
 #Implement a dummy search frame for UI continuity
-dummysearchFrame = Frame(addEntries, bd = 1, relief = GROOVE, padx = padding/2, pady = padding/2)
+dummysearchFrame = Frame(addEntries, bd = 1, relief = GROOVE)
 dummysearchFrame.grid(row = 0, column = 1, columnspan = 2, sticky = 'we')
 dummyaliasSearchLabel = Label(dummysearchFrame, text = 'Search: ', padx = padding, pady = padding, font = ("Ariel", 10), state = DISABLED)
 dummyaliasSearchLabel.grid(row = 0, column = 0)
-dummyaliasSearchBox = Entry(dummysearchFrame, font = ("Ariel", 10), width = 50, state = DISABLED)
+dummyaliasSearchBox = Entry(dummysearchFrame, font = ("Ariel", 10), width = 64, state = DISABLED)
 dummyaliasSearchBox.grid(row = 0, column = 1, sticky = 'we', columnspan = 2)
 dummyaliasSearchButton = Button(dummysearchFrame, text = 'Search', font = ("Ariel", 10), width = 5, state = DISABLED)
 dummyaliasSearchButton.grid(row = 0, column = 2, sticky = 'e')

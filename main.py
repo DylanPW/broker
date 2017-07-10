@@ -2,7 +2,7 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.2b;
+# Version 0.2c;
 #
 #
 # Please report any bugs or issues as you see fit.
@@ -28,11 +28,11 @@ currentID = 0
 def createNewDB():
     tkMessageBox.askyesno("Database not found!","Database not found! Create new Database?")
     if True:
-        statusLabel.text = "bleh"
+        statusLabel.text = "Creating..."
         db = connect(database = "contacts.db")
         db.row_factory = lambda cursor, row: row[0]
         db_connect = db.cursor()
-        db_connect.execute("CREATE TABLE Contacts (id integer PIMARY KEY, alias text NOT NULL, name text, email text, address text, phone text, website text, facebook text, twitter text, instagram text, linkedin text, other text)")
+        db_connect.execute("CREATE TABLE Contacts (id integer PRIMARY KEY, alias text NOT NULL, name text, email text, address text, phone text, website text, facebook text, twitter text, instagram text, linkedin text, other text)")
 
     else:
         exitError = tkMessageBox.showerror("Error", "No database, exiting ...")

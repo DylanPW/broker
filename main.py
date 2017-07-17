@@ -2,7 +2,9 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.2c;
+# Version 0.3a;
+#
+# Please see README for additional details and changelog.
 #
 #
 # Please report any bugs or issues as you see fit.
@@ -10,7 +12,8 @@
 
 #Import applicable modules
 from Tkinter import *
-import ttk, Tkconstants, tkFileDialog, tkMessageBox, platform, os.path, sys, csv, re
+# from tkMessageBox import *
+import ttk, Tkconstants, tkFileDialog, platform, os.path, sys, csv, re, tkMessageBox
 from sqlite3 import *
 #Variables for text
 dbname = "Database Name Here"
@@ -21,6 +24,7 @@ padding = 5
 ###############################################################################
 
 # Key Variables
+searchActive = False
 editing = False
 currentID = 0
 
@@ -56,7 +60,6 @@ def initialiseDB():
             listTable.insert(END, r[1])
         global index
         index = 0
-
         #Check the platform
         osPlatform = platform.system()
         if osPlatform == 'Windows':
@@ -75,18 +78,15 @@ def initialiseDB():
 # Select the information from the database
 def SelectEntry(event):
     try:
+        tabs.select(0)
         statusLabel.configure(text = "Selecting Entry...")
         global index, currentID
         #Take the index of the list and search main list of entries for it
         index = [str(r) for r in listTable.curselection()]
-        index = int(index[0]) + 1
-        index = [i for i, v in enumerate(entries) if v[0] == index]
-        try:
-            index[0] += 1
-        except:
-            index[0] += 1
-        currentID = str(index[0])
-        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(index))
+        # index = [i for i, v in enumerate(entries) if v[0] == index]
+        currentID = str(entries[int(index[0][0])])
+
+        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(currentID[1],))
         results = db_connect.fetchall()
 
         aliasVar.set(results[0][1])
@@ -133,6 +133,7 @@ def editValues():
 
                 promptResult = tkMessageBox.askokcancel("Save Entry?","Would you like to save this entry?")
                 if promptResult == True and aliasViewEntry.get() != "":
+
                     db_connect.execute("UPDATE Contacts SET alias = ('"+ aliasViewEntry.get() +"'), name = ('"+ nameViewEntry.get() +"'), email = ('"+ emailViewEntry.get() +"'), address = ('"+ addressViewEntry.get() +"'), \
                     phone  = ('"+ phoneViewEntry.get() +"'), website = ('"+ webViewEntry.get() +"'), facebook = ('"+ facebookViewEntry.get() +"'), twitter = ('"+ twitterViewEntry.get() +"'), \
                     instagram = ('"+ instagramViewEntry.get() +"'), linkedin = ('"+ linkedinViewEntry.get() +"'), other  = ('"+ otherViewEntry.get() +"') WHERE id = ('"+ currentID +"')")
@@ -213,10 +214,57 @@ def editValues():
     except:
         tkMessageBox.showerror("Error","An error occured!")
 
+# Delete existing entry
+def deleteEntry():
+    try:
+        if currentID != 0:
+            if tkMessageBox.askyesno("Delete?", "Are you sure you want to delete?"):
+
+                db_connect.execute("DELETE FROM Contacts WHERE id = (?)",(currentID,))
+                db.commit()
+                if searchActive == True:
+                    if str(aliasSearchBox.get()) != "":
+                        searchText = str("%"+str(aliasSearchBox.get())+"%")
+                        db_connect.execute("SELECT id, alias FROM Contacts WHERE alias LIKE (?)", (searchText,))
+                        results = db_connect.fetchall()
+                        entries = results
+                        listTable.delete(0, END)
+                        for r in results:
+                            listTable.insert(END, r[1])
+                else:
+                    db_connect.execute("SELECT id, alias FROM Contacts")
+                    listTable.delete(0, END)
+                    results = db_connect.fetchall()
+                    entries = results
+                    for r in results:
+                        listTable.insert(END, r[1])
+                    global index
+                    index = 0
+
+                aliasVar.set("")
+                nameVar.set("")
+                emailVar.set("")
+                addressVar.set("")
+                phoneVar.set("")
+                websiteVar.set("")
+                facebookVar.set("")
+                twitterVar.set("")
+                instagramVar.set("")
+                linkedinVar.set("")
+                otherVar.set("")
+                window.update()
+                statusLabel.configure(text = "Entry Deleted!")
+        else:
+            tkMessageBox.showerror("Error","Please select an Entry")
+    except:
+        tkMessageBox.showerror("Error", "An error occured!")
+
 # function to add an entry
 def addEntry():
+    global entries
     try:
         if aliasEditEntry.get() != "":
+
             statusLabel.configure(text = "Adding Entry...")
             db_connect.execute("INSERT INTO Contacts (alias, name, email, address, phone, website, facebook, twitter, instagram, linkedin, other) \
             VALUES (('"+ aliasEditEntry.get() +"'),('"+ nameEditEntry.get() +"'),('"+ emailEditEntry.get() +"'),('"+ addressEditEntry.get() +"'), \
@@ -233,6 +281,7 @@ def addEntry():
                 listTable.insert(END, r[1])
             global index
             index = 0
+            aliasSearchBox.delete(0, END)
 
             #Clear the editentries
             aliasEditEntry.delete(0, END)
@@ -246,7 +295,9 @@ def addEntry():
             instagramEditEntry.delete(0, END)
             linkedinEditEntry.delete(0, END)
             otherEditEntry.delete(0, END)
-            statusLabel.configure(text = "Entry Added!...")
+            statusLabel.configure(text = "Entry Added!")
+            window.update()
+
         else:
             tkMessageBox.showerror("Error","You must have an alias")
     except:
@@ -257,6 +308,7 @@ def saveCSV():
     global homeDir
     saveFile = tkFileDialog.asksaveasfilename(initialdir = homeDir, title = "Select Save Location", filetypes = (("CSV","*.csv"),("All Files","*.*")), defaultextension = ".csv")
     statusLabel.configure(text = "Exporting CSV...")
+
     try:
         with open(saveFile, "wb") as writeFile:
             writeFile.write("id,alias,name,email,address,phone,website,facebook,twitter,instagram,linkedin,other\n")
@@ -265,12 +317,13 @@ def saveCSV():
                 writeFile.write(writeRow.encode())
                 writeFile.write("\n")
                 statusLabel.configure(text = "Exporting Successful!")
+
     except:
         tkMessageBox.showerror("Error","File not saved!")
 
 # Search the database
 def searchDB():
-    global searchText
+    global searchText, searchActive
     try:
         statusLabel.configure(text = "Searching...")
         searchText = str("%"+str(aliasSearchBox.get())+"%")
@@ -281,6 +334,8 @@ def searchDB():
         for r in results:
             listTable.insert(END, r[1])
         statusLabel.configure(text = "Search Complete!")
+        searchActive = True
+
     except:
         tkMessageBox.showerror("Error","An error occured, did your search contain invalid strings?")
 
@@ -295,14 +350,35 @@ def clearSearch():
             listTable.insert(END, r[1])
         aliasSearchBox.delete(0, END)
         statusLabel.configure(text = "Search cleared!")
+        searchActive = False
+
     except:
         tkMessageBox.showerror("Error","An error occured!")
-# triggered off left button click on text_field
+
+
+
+#Clear the editentries
+def clearEntries():
+    aliasEditEntry.delete(0, END)
+    nameEditEntry.delete(0, END)
+    emailEditEntry.delete(0, END)
+    addressEditEntry.delete(0, END)
+    phoneEditEntry.delete(0, END)
+    webEditEntry.delete(0, END)
+    facebookEditEntry.delete(0, END)
+    twitterEditEntry.delete(0, END)
+    instagramEditEntry.delete(0, END)
+    linkedinEditEntry.delete(0, END)
+    otherEditEntry.delete(0, END)
+    statusLabel.configure(text = "Cleared!")
+
+# triggered off left button click on entrybox
 def copy_text(event):
     field_value = event.widget.get()
     window.clipboard_clear()
     window.clipboard_append(field_value)
     statusLabel.configure(text = "Text Copied!...")
+
 # Exit the application, closing any database connections in the process.
 def exitApp():
     db_connect.close()
@@ -434,17 +510,17 @@ linkedinViewLabel.grid(row = 10, column = 1, sticky = 'w')
 otherViewLabel.grid(row = 11, column = 1, sticky = 'w')
 
 # add the entryboxes into a grid
-aliasViewEntry.grid(row = 1, column = 2, sticky = 'e')
-nameViewEntry.grid(row = 2, column = 2, sticky = 'e')
-emailViewEntry.grid(row = 3, column = 2, sticky = 'e')
-addressViewEntry.grid(row = 4, column = 2, sticky = 'e')
-phoneViewEntry.grid(row = 5, column = 2, sticky = 'e')
-webViewEntry.grid(row = 6, column = 2, sticky = 'e')
-facebookViewEntry.grid(row = 7, column = 2, sticky = 'e')
-twitterViewEntry.grid(row = 8, column = 2, sticky = 'e')
-instagramViewEntry.grid(row = 9, column = 2, sticky = 'e')
-linkedinViewEntry.grid(row = 10, column = 2, sticky = 'e')
-otherViewEntry.grid(row = 11, column = 2, sticky = 'e')
+aliasViewEntry.grid(row = 1, column = 2, sticky = 'w')
+nameViewEntry.grid(row = 2, column = 2, sticky = 'w')
+emailViewEntry.grid(row = 3, column = 2, sticky = 'w')
+addressViewEntry.grid(row = 4, column = 2, sticky = 'w')
+phoneViewEntry.grid(row = 5, column = 2, sticky = 'w')
+webViewEntry.grid(row = 6, column = 2, sticky = 'w')
+facebookViewEntry.grid(row = 7, column = 2, sticky = 'w')
+twitterViewEntry.grid(row = 8, column = 2, sticky = 'w')
+instagramViewEntry.grid(row = 9, column = 2, sticky = 'w')
+linkedinViewEntry.grid(row = 10, column = 2, sticky = 'w')
+otherViewEntry.grid(row = 11, column = 2, sticky = 'w')
 
 # bind left clicking on the entryboxes to
 aliasViewEntry.bind("<Button-3>", copy_text)
@@ -473,7 +549,12 @@ aliasClearButton.grid(row = 0, column = 3, sticky = 'e')
 
 # Add a button to edit
 editButton = Button(viewEntries, text = "Edit Entry", command = editValues, width = 8)
-editButton.grid(row = 12, column = 2)
+editButton.grid(row = 12, column = 2, columnspan =  2)
+
+# Add a button to delete
+delButton = Button(viewEntries, text = "Delete Entry", command = deleteEntry, width = 8)
+delButton.grid(row = 12, column = 1)
+
 
 ################################################################################
 # SETTING UP ADDENTRIES
@@ -547,12 +628,15 @@ dummyaliasClearButton.grid(row = 0, column = 3, sticky = 'e')
 addButton = Button(addEntries, command = addEntry, text = "Add Entry", width = 8)
 addButton.grid(row = 12, column = 2)
 
+# Add a button to delete
+clearButton = Button(addEntries, text = "Clear Entry", command = clearEntries, width = 8)
+clearButton.grid(row = 12, column = 1)
+
 ################################################################################
 # STARTING UP
 ################################################################################
 # intialize the database
 initialiseDB()
-
 
 # start the window
 window.mainloop()

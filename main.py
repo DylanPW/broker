@@ -77,16 +77,17 @@ def initialiseDB():
 
 # Select the information from the database
 def SelectEntry(event):
+    global index, currentID
     try:
         tabs.select(0)
         statusLabel.configure(text = "Selecting Entry...")
-        global index, currentID
         #Take the index of the list and search main list of entries for it
         index = [str(r) for r in listTable.curselection()]
         # index = [i for i, v in enumerate(entries) if v[0] == index]
         currentID = str(entries[int(index[0][0])])
+        currentID = currentID[1]
 
-        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(currentID[1],))
+        db_connect.execute("SELECT * FROM Contacts WHERE id = (?)",(currentID,))
         results = db_connect.fetchall()
 
         aliasVar.set(results[0][1])
@@ -218,8 +219,8 @@ def editValues():
 def deleteEntry():
     try:
         if currentID != 0:
-            if tkMessageBox.askyesno("Delete?", "Are you sure you want to delete?"):
-
+            deletePrompt = tkMessageBox.askyesno("Delete?", "Are you sure you want to delete?")
+            if deletePrompt == True:
                 db_connect.execute("DELETE FROM Contacts WHERE id = (?)",(currentID,))
                 db.commit()
                 if searchActive == True:

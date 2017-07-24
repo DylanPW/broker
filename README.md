@@ -4,7 +4,7 @@ A simple contacts database script written in python, featuring storing data in a
 
 broker was named after the Mass Effect information brokers who predominantly deal with information within the series.
 
-# Version 0.3a
+# Version 0.3c
 
 Working Features include:
 - Adding entries to database
@@ -20,6 +20,9 @@ Please report any bugs or issues as you see fit.
 - Help Menu
 
 # Changelog:
+- 0.3c
+  - Added exception handling for creating databases
+
 - 0.3b
   - Fixed Deletion functionality
 

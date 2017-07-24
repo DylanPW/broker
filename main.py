@@ -2,7 +2,7 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.3b;
+# Version 0.3c;
 #
 # Please see README for additional details and changelog.
 #
@@ -10,8 +10,11 @@
 # Please report any bugs or issues as you see fit.
 
 
-#Import applicable modules
-from Tkinter import *
+#Import applicable
+try:
+    from Tkinter import *
+except:
+    from tkinter import *
 # from tkMessageBox import *
 import ttk, Tkconstants, tkFileDialog, platform, os.path, sys, csv, re, tkMessageBox
 from sqlite3 import *

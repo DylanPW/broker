@@ -2,7 +2,7 @@
 #
 # A simple contacts database application, featuring exporting to csv.
 #
-# Version 0.3a;
+# Version 0.3b;
 #
 # Please see README for additional details and changelog.
 #

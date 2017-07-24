@@ -20,6 +20,9 @@ Please report any bugs or issues as you see fit.
 - Help Menu
 
 # Changelog:
+- 0.3b
+  - Fixed Deletion functionality
+
 - 0.3a
   - Implemented initial version of entry deletion
     - Selection system rewritten as a result in order to fix related bugs

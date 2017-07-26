@@ -1,6 +1,6 @@
 # broker
 
-A simple contacts database script written in python, featuring storing data in an sqlite database and eventually exporting to a CSV.
+A simple contacts database script written in python 2.7, featuring storing data in an sqlite database and eventually exporting to a CSV.
 
 broker was named after the Mass Effect information brokers who predominantly deal with information within the series.
 
@@ -15,11 +15,12 @@ Please report any bugs or issues as you see fit.
 
 # Todo
 
-- Implement Importing and appending CSV to database
-- Preferences Menu
-- Help Menu
+- Tags for entries, selectable via dropdown menu.
+- Preferences Menu where applicable.
+- Help Menu and better documentation on application usage.
 
-# Changelog:
+## Changelog:
+
 - 0.3c
   - Added exception handling for creating databases
 

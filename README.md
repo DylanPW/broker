@@ -16,10 +16,11 @@ Please report any bugs or issues as you see fit.
 # Todo
 
 - Tags for entries, selectable via dropdown menu.
-- Preferences Menu
-- Help Menu
+- Preferences Menu where applicable.
+- Help Menu and better documentation on application usage.
 
-# Changelog:
+## Changelog:
+
 - 0.3c
   - Added exception handling for creating databases
 
